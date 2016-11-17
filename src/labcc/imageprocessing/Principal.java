@@ -1,6 +1,5 @@
 package labcc.imageprocessing;
 
-import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -15,7 +14,7 @@ public class Principal {
 		
 		mostraCabecalho();
 		
-		// Faz Leitura do nome da imagem + sua extensão
+		// Faz Leitura do nome da imagem + sua extensao
 		System.out.println("Nome da Imagem: ");
 		String nomeArquivo = scanner.nextLine();
 		
@@ -38,7 +37,6 @@ public class Principal {
 				break;
 			}
 			case 3: {
-				// TODO Verificar porque não está girando
 				manipula.girarImagem();
 				break;
 			}
@@ -47,11 +45,12 @@ public class Principal {
 				break;
 			}
 			case 5: {
-				// TODO Melhorar algoritmo
-				int taxa;
 				System.out.println("Valor de Brilho (-255 a 255): ");
-				taxa = scanner.nextInt();
-				manipula.brilho(taxa);
+				int taxa = scanner.nextInt();
+
+				if(taxa > 0)  manipula.clarear(taxa);
+					else 	  manipula.escurecer(taxa);
+
 				break;
 			}
 			default:
@@ -74,7 +73,7 @@ public class Principal {
 	}
 
 	private static void exibeMenu() {
-		// Exibe menu de opções
+		// Exibe menu de opcoes
 		System.out.println("\nEscolha o Filtro: \n");
 		System.out.print("1- Negativo\n" + "2- Filtrar Cor\n" + "3- Girar Imagem\n" + "4- Tons de Cinza\n"
 				+ "5- Clarear/Escurecer\n" + "0- Sair\n");
@@ -85,21 +84,48 @@ public class Principal {
 class ManipulaImagem {
 
 	private int red[][], green[][], blue[][], width, height;
+	private IOImage img;
 
 	public ManipulaImagem(IOImage img) {
 		extraiPixels(img);
 		this.width = img.getWidth();
 		this.height = img.getHeight();
+		this.img = img;
 	}
 
-	public void brilho(int taxa) {
+	public void clarear(int taxa) {
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
 
 				// adiciona a qtde de brilho desejada
-				red[i][j] += taxa;
-				green[i][j] += taxa;
-				blue[i][j] += taxa;
+				int cor = red[i][j] += taxa;
+				red[i][j] = cor > 255 ? 255 : cor;
+				
+				cor = blue[i][j] += taxa;
+				blue[i][j] = cor > 255 ? 255 : cor;
+				
+				cor = green[i][j] += taxa;
+				green[i][j] = cor > 255 ? 255 : cor;
+				
+			}
+		}
+
+	}
+
+	public void escurecer(int taxa) {
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+
+				// adiciona a qtde de brilho desejada
+				int cor = red[i][j] += taxa;
+				red[i][j] = cor < 0 ? 0 : cor;
+				
+				cor = blue[i][j] += taxa;
+				blue[i][j] = cor < 0 ? 0 : cor;
+				
+				cor = green[i][j] += taxa;
+				green[i][j] = cor < 0 ? 0 : cor;
+				
 			}
 		}
 
@@ -108,9 +134,9 @@ class ManipulaImagem {
 	public void girarImagem() {
 		Scanner scanner = new Scanner(System.in);
 		int op;
-		int redAux[][] = new int[height][width];
-		int greenAux[][] = new int[height][width];
-		int blueAux[][] = new int[height][width];
+		int redAux[][] = new int[width][height];
+		int greenAux[][] = new int[width][height];
+		int blueAux[][] = new int[width][height];
 
 		System.out.println("1- Girar p/ Direita\t 2- Girar p/ Esquerda");
 		try {
@@ -121,9 +147,9 @@ class ManipulaImagem {
 				// Gira em uma matriz auxiliar
 				for (int i = 0; i < height; i++) {
 					for (int j = 0; j < width; j++) {
-						redAux[i][j] = red[width - j - 1][i];
-						greenAux[i][j] = green[width - j - 1][i];
-						blueAux[i][j] = blue[width - j - 1][i];
+						redAux[j][i] = red[i][width - j - 1];
+						greenAux[j][i] = green[i][width - j - 1];
+						blueAux[j][i] = blue[i][width - j - 1];
 					}
 				}
 			} else if (op == 2) { // Girar p/ Esquerda
@@ -131,26 +157,20 @@ class ManipulaImagem {
 				// Gira em uma matriz auxiliar
 				for (int i = 0; i < height; i++) {
 					for (int j = 0; j < width; j++) {
-						redAux[i][j] = red[j][height - i - 1];
-						greenAux[i][j] = green[j][height - i - 1];
-						blueAux[i][j] = blue[j][height - i - 1];
+						redAux[j][i] = red[height - i - 1][j];
+						greenAux[j][i] = green[height - i - 1][j];
+						blueAux[j][i] = blue[height - i - 1][j];
 					}
 				}
 			}else{
-				System.out.println("Erro: Opção inválida.");
+				System.out.println("Erro: Opcao invalida.");
 				return;
 			}
 			
-			// Copia os valores da matriz auxiliar p/ matriz base
-			for(int i=0; i < height; i++){
-				for(int j=0; j < width; j++){
-					red[i][j] = redAux[i][j];
-					green[i][j] = greenAux[i][j];
-					blue[i][j] = blueAux[i][j];
-				}
-			}
+			img.setMatrix(redAux, greenAux, blueAux);
+			
 		} catch (InputMismatchException e) {
-			System.out.println("Erro: Valor digitado é inválido!");
+			System.out.println("Erro: Valor digitado eh invalido!");
 		}
 		
 	}
@@ -166,7 +186,7 @@ class ManipulaImagem {
 
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
-				// obtém a média das cores
+				// obtem a media das cores
 				gray = (red[i][j] + green[i][j] + blue[i][j]) / 3;
 
 				// define o tom de cinza obtido
@@ -182,7 +202,7 @@ class ManipulaImagem {
 
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
-				// Inverte os valores de cada uma das 3 cores básicas
+				// Inverte os valores de cada uma das 3 cores basicas
 				red[i][j] = 255 - red[i][j];
 				green[i][j] = 255 - green[i][j];
 				blue[i][j] = 255 - blue[i][j];
@@ -192,7 +212,7 @@ class ManipulaImagem {
 
 	public void filtrarCor(int cor) {
 		switch (cor) {
-		// faz verificação da cor
+		// faz verificao da cor
 		case 1: {
 			for (int i = 0; i < height; i++) {
 				for (int j = 0; j < width; j++) {
@@ -217,7 +237,7 @@ class ManipulaImagem {
 			}
 			break;
 		}
-		// exibe mensagem de erro, caso valor seja inválido
+		// exibe mensagem de erro, caso valor seja invalido
 		default: {
 			System.out.println("O valor da cor deve estar entre 1 e 3");
 		}

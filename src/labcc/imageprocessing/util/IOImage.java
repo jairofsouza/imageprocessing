@@ -18,6 +18,15 @@ public class IOImage {
 		return h;
 	}
 	
+	public void setHeight(int h) {
+		this.h = h;
+	}
+	
+	public void setWidth(int w) {
+		this.w = w;
+	}
+	
+	
 	public int getWidth() {
 		return w;
 	}
@@ -32,6 +41,15 @@ public class IOImage {
 	
 	public int[][] getRed() {
 		return red;
+	}
+	
+	public void setMatrix(int[][] r, int[][] g, int b[][]) {
+		this.red = r;
+		this.green = g;
+		this.blue = b;
+		
+		this.h = r.length;
+		this.w = r[0].length;
 	}
 	
 	private void populatePixelARGB(int pixel, int i, int j) {
@@ -64,6 +82,8 @@ public class IOImage {
 
 	
 	private void update() {
+		int type = this.image.getType();
+		this.image = new BufferedImage(this.w, this.h, type);
 		for (int y = 0; y < this.w; y++) 
 		    for (int x = 0; x < this.h; x++) 
 		        this.image.setRGB(y, x, rgb2int(this.red[x][y], this.green[x][y], this.blue[x][y]));

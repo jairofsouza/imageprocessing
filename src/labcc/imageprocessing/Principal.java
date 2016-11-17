@@ -1,19 +1,24 @@
 package labcc.imageprocessing;
 
+import java.util.Arrays;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import labcc.imageprocessing.util.IOImage;
 import labcc.imageprocessing.view.ImageFrame;
 
 public class Principal {
-
+	static Scanner scanner = new Scanner(System.in);
+	
 	public static void main(String[] args) {
-		Scanner scanner = new Scanner(System.in);
 		int op, cor;
+		
+		mostraCabecalho();
+		
 		// Faz Leitura do nome da imagem + sua extensão
 		System.out.println("Nome da Imagem: ");
 		String nomeArquivo = scanner.nextLine();
-
+		
 		do {
 			// Carrega imagem
 			IOImage i = new IOImage("./img/" + nomeArquivo);
@@ -33,7 +38,7 @@ public class Principal {
 				break;
 			}
 			case 3: {
-				//TODO Verificar porque não está girando
+				// TODO Verificar porque não está girando
 				manipula.girarImagem();
 				break;
 			}
@@ -42,7 +47,7 @@ public class Principal {
 				break;
 			}
 			case 5: {
-				//TODO Melhorar algoritmo
+				// TODO Melhorar algoritmo
 				int taxa;
 				System.out.println("Valor de Brilho (-255 a 255): ");
 				taxa = scanner.nextInt();
@@ -52,18 +57,25 @@ public class Principal {
 			default:
 				break;
 			}
-			if(op!=0){
+			if (op != 0) {
 				ImageFrame frame = new ImageFrame(i.getImage(), i.getWidth(), i.getHeight());
 				frame.show();
 			}
 		} while (op != 0);
 		scanner.close();
-		
+
 		System.exit(1);
+	}
+
+	private static void mostraCabecalho() {
+		System.out.printf("*************************************\n");
+		System.out.printf("*\tTratamento de Imagens\t    *\n");
+		System.out.printf("*************************************\n\n");
 	}
 
 	private static void exibeMenu() {
 		// Exibe menu de opções
+		System.out.println("\nEscolha o Filtro: \n");
 		System.out.print("1- Negativo\n" + "2- Filtrar Cor\n" + "3- Girar Imagem\n" + "4- Tons de Cinza\n"
 				+ "5- Clarear/Escurecer\n" + "0- Sair\n");
 	}
@@ -81,40 +93,67 @@ class ManipulaImagem {
 	}
 
 	public void brilho(int taxa) {
-		for(int i = 0; i < height; i++){
-	        for(int j = 0; j < width; j++){
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
 
-	            //adiciona a qtde de brilho desejada
-	            red[i][j] += taxa;
-	            green[i][j] += taxa;
-	            blue[i][j] += taxa;
-	        }
-	    }
-		
+				// adiciona a qtde de brilho desejada
+				red[i][j] += taxa;
+				green[i][j] += taxa;
+				blue[i][j] += taxa;
+			}
+		}
+
 	}
 
 	public void girarImagem() {
-		int aux;
-		for (int i = 0; i < height; i++) {
-			for (int j = 0; j < width; j++) {
-				if (i != j) {
-					// gira r
-					aux = red[i][j];
-					red[i][j] = red[j][i];
-					red[j][i] = aux;
-					// gira g
-					aux = green[i][j];
-					green[i][j] = green[j][i];
-					green[j][i] = aux;
-					// gira b
-					aux = blue[i][j];
-					blue[i][j] = blue[j][i];
-					blue[j][i] = aux;
+		Scanner scanner = new Scanner(System.in);
+		int op;
+		int redAux[][] = new int[height][width];
+		int greenAux[][] = new int[height][width];
+		int blueAux[][] = new int[height][width];
+
+		System.out.println("1- Girar p/ Direita\t 2- Girar p/ Esquerda");
+		try {
+			op = scanner.nextInt();
+
+			if (op == 1) { // Girar p/ direita
+
+				// Gira em uma matriz auxiliar
+				for (int i = 0; i < height; i++) {
+					for (int j = 0; j < width; j++) {
+						redAux[i][j] = red[width - j - 1][i];
+						greenAux[i][j] = green[width - j - 1][i];
+						blueAux[i][j] = blue[width - j - 1][i];
+					}
+				}
+			} else if (op == 2) { // Girar p/ Esquerda
+
+				// Gira em uma matriz auxiliar
+				for (int i = 0; i < height; i++) {
+					for (int j = 0; j < width; j++) {
+						redAux[i][j] = red[j][height - i - 1];
+						greenAux[i][j] = green[j][height - i - 1];
+						blueAux[i][j] = blue[j][height - i - 1];
+					}
+				}
+			}else{
+				System.out.println("Erro: Opção inválida.");
+				return;
+			}
+			
+			// Copia os valores da matriz auxiliar p/ matriz base
+			for(int i=0; i < height; i++){
+				for(int j=0; j < width; j++){
+					red[i][j] = redAux[i][j];
+					green[i][j] = greenAux[i][j];
+					blue[i][j] = blueAux[i][j];
 				}
 			}
+		} catch (InputMismatchException e) {
+			System.out.println("Erro: Valor digitado é inválido!");
 		}
+		
 	}
-
 
 	public void extraiPixels(IOImage img) {
 		this.red = img.getRed();

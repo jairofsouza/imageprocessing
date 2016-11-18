@@ -21,7 +21,8 @@ public class ImageFrame {
 		ImagePanel panel = new ImagePanel(this.i);
 		JFrame snakeFrame = new JFrame();
         GroupLayout layout = new GroupLayout(panel);
-		snakeFrame.setBounds(100, 200, this.w, this.h);
+		snakeFrame.setSize(this.w, this.h);
+		snakeFrame.setLocationRelativeTo(null);	//centraliza na tela
 		snakeFrame.setVisible(true);
 		panel.setLayout(layout);
 		snakeFrame.add(panel);

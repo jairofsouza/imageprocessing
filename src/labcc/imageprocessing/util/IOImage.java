@@ -3,6 +3,7 @@ package labcc.imageprocessing.util;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+
 import javax.imageio.ImageIO;
 
 // http://alvinalexander.com/blog/post/java/getting-rgb-values-for-each-pixel-in-image-using-java-bufferedi
@@ -93,14 +94,10 @@ public class IOImage {
 		return (r << 16) | (g << 8) | b;
 	}
 	
-	
-	public IOImage(String file) {
-		try {
-			this.image = ImageIO.read(new File(file));
-			marchThroughImage(image);
-		} catch (IOException e) {
-			System.err.println(e.getMessage());
-		}
+	public IOImage(File file) throws IOException {
+	//public IOImage(String file) throws IOException {
+		this.image = ImageIO.read(file);
+		marchThroughImage(image);
 	}
 	
 	public BufferedImage getImage() {
